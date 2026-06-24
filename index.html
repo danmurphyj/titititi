@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COMMOTITTY</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      height: 100vh;
+      overflow: hidden;
+      background: url('bg.jpg') center center / cover no-repeat;
+      font-family: 'Impact', 'Arial Black', sans-serif;
+      color: #fff;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 0;
+    }
+
+    /* Screen-edge glow that intensifies with speed */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      box-shadow: inset 0 0 0px transparent;
+      transition: box-shadow 0.5s;
+    }
+    body.s2::after { box-shadow: inset 0 0 60px rgba(255,68,204,0.25); }
+    body.s3::after { box-shadow: inset 0 0 100px rgba(255,68,204,0.45); }
+    body.s4::after { box-shadow: inset 0 0 140px rgba(255,68,204,0.7); animation: edge-pulse 0.4s ease-in-out infinite alternate; }
+
+    @keyframes edge-pulse {
+      to { box-shadow: inset 0 0 200px rgba(255,68,204,0.9); }
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 12px 20px 8px;
+      gap: 10px;
+    }
+
+    /* Page shake at turbo */
+    @keyframes page-shake {
+      0%,100% { transform: translateX(0) rotate(0deg); }
+      20%      { transform: translateX(-3px) rotate(-.3deg); }
+      40%      { transform: translateX(3px) rotate(.3deg); }
+      60%      { transform: translateX(-2px) rotate(-.2deg); }
+      80%      { transform: translateX(2px) rotate(.2deg); }
+    }
+    .page.s4 { animation: page-shake 0.12s ease-in-out infinite; }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      gap: 16px;
+    }
+
+    .title-block h1 {
+      font-size: clamp(1.6rem, 4.5vw, 3rem);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px #ff44cc, 0 4px 8px rgba(0,0,0,.8);
+      line-height: 1;
+      transition: text-shadow 0.4s;
+    }
+    body.s4 .title-block h1 {
+      animation: title-rainbow 0.6s linear infinite;
+    }
+    @keyframes title-rainbow {
+      0%   { text-shadow: 0 0 20px #ff44cc, 4px 0 0 #ff0000aa; }
+      33%  { text-shadow: 0 0 30px #ff44cc, 4px 0 0 #00ff00aa; }
+      66%  { text-shadow: 0 0 30px #ff44cc, -4px 0 0 #0000ffaa; }
+      100% { text-shadow: 0 0 20px #ff44cc, 4px 0 0 #ff0000aa; }
+    }
+
+    .title-block .tagline {
+      font-size: clamp(.6rem, 1.6vw, .8rem);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #ffccee;
+      text-shadow: 0 2px 6px rgba(0,0,0,.8);
+      margin-top: 3px;
+    }
+
+    /* ── NAV ── */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ── SOCIAL ROW ── */
+    .social-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-shrink: 0;
+    }
+
+    .link-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      color: #fff;
+      transition: transform .2s;
+    }
+    .link-card:hover { transform: translateY(-3px); }
+
+    .link-card img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      border-radius: 10px;
+      border: 2px solid #ff44cc88;
+      box-shadow: 0 4px 12px rgba(255,68,204,.35);
+      background: rgba(0,0,0,0.55);
+      padding: 7px;
+    }
+
+    .link-card span {
+      font-size: .55rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #ffccee;
+    }
+
+    .buy-btn {
+      display: inline-block;
+      padding: 10px 22px;
+      font-family: 'Impact', 'Arial Black', sans-serif;
+      font-size: clamp(.85rem, 2vw, 1.05rem);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: #fff;
+      background: linear-gradient(135deg, #ff44cc, #aa00ff);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 0 20px #ff44ccaa;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .buy-btn:hover { transform: scale(1.06); box-shadow: 0 0 35px #ff44cccc; }
+    .buy-btn:active { transform: scale(.97); }
+
+    /* ── GIF WRAP ── */
+    .gif-wrap {
+      flex: 1;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 0;
+      overflow: hidden;
+      border-radius: 8px;
+      transition: box-shadow 0.4s;
+    }
+
+    /* Speed-lines vortex overlay */
+    .speed-lines {
+      position: absolute;
+      /* bigger than container so rotation doesn't reveal edges */
+      width: 160%;
+      height: 160%;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: repeating-conic-gradient(
+        from 0deg at 50% 50%,
+        rgba(255,200,240,0.18) 0deg 1.2deg,
+        transparent 1.2deg 9deg
+      );
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    @keyframes spin-slow { to { transform: translate(-50%,-50%) rotate(360deg); } }
+    @keyframes spin-fast { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+    .gif-wrap.s2 .speed-lines { opacity: 0.25; }
+    .gif-wrap.s3 .speed-lines { opacity: 0.45; animation: spin-slow 4s linear infinite; }
+    .gif-wrap.s4 .speed-lines { opacity: 0.7;  animation: spin-fast 0.9s linear infinite; }
+
+    /* Glow ring around gif-wrap */
+    .gif-wrap.s2 { box-shadow: inset 0 0 30px rgba(255,68,204,0.2); }
+    .gif-wrap.s3 { box-shadow: inset 0 0 60px rgba(255,68,204,0.4); }
+    .gif-wrap.s4 {
+      box-shadow: inset 0 0 90px rgba(255,68,204,0.6);
+      animation: wrap-throb 0.35s ease-in-out infinite alternate;
+    }
+    @keyframes wrap-throb {
+      to { box-shadow: inset 0 0 130px rgba(255,68,204,0.85); }
+    }
+
+    /* Canvas filters per speed level */
+    .gif-wrap canvas {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+      position: relative;
+      z-index: 1;
+      transition: filter 0.4s;
+    }
+    .gif-wrap.s2 canvas { filter: saturate(1.5); }
+    .gif-wrap.s3 canvas { filter: saturate(2.2) contrast(1.1); }
+    .gif-wrap.s4 canvas {
+      filter: saturate(2.8) contrast(1.15)
+              drop-shadow(3px 0 0 rgba(255,0,100,0.5))
+              drop-shadow(-3px 0 0 rgba(0,100,255,0.5));
+      animation: canvas-throb 0.35s ease-in-out infinite alternate;
+    }
+    @keyframes canvas-throb {
+      to { filter: saturate(3.2) contrast(1.2)
+                   drop-shadow(5px 0 0 rgba(255,0,100,0.7))
+                   drop-shadow(-5px 0 0 rgba(0,100,255,0.7)); }
+    }
+
+    /* TURBO label that flashes over the GIF */
+    .turbo-label {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(2rem, 8vw, 5rem);
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 0 30px #ff44cc, 0 0 60px #ff44cc;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .gif-wrap.s4 .turbo-label {
+      animation: turbo-flash 1.2s ease-in-out infinite;
+    }
+    @keyframes turbo-flash {
+      0%,100% { opacity: 0; transform: translate(-50%,-50%) scale(1); }
+      10%,90% { opacity: 0; }
+      50%      { opacity: 0.65; transform: translate(-50%,-50%) scale(1.08); }
+    }
+
+    /* ── BOTTOM ROW ── */
+    .bottom-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .ca-box {
+      flex: 1;
+      background: rgba(0,0,0,.6);
+      border: 1.5px solid #ff44cc88;
+      border-radius: 12px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .ca-label {
+      font-size: .72rem;
+      letter-spacing: .12em;
+      color: #ff88dd;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .ca-address {
+      flex: 1;
+      font-family: 'Courier New', monospace;
+      font-size: clamp(.52rem, 1.5vw, .78rem);
+      color: #fff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ca-copy {
+      background: #ff44cc;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: inherit;
+      font-size: .72rem;
+      letter-spacing: .1em;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .ca-copy:hover { background: #cc0099; }
+    .ca-copy:active { transform: scale(.95); }
+
+    /* ── SPEED BUTTON ── */
+    .speed-btn {
+      position: relative;
+      background: linear-gradient(135deg, #c8006a 0%, #6600cc 100%);
+      border: 2px solid rgba(255,160,230,0.55);
+      border-radius: 50px;
+      color: #fff;
+      font-family: 'Impact', 'Arial Black', sans-serif;
+      font-size: 1rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      padding: 12px 26px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      overflow: hidden;
+      animation: btn-idle 2.2s ease-in-out infinite;
+      transition: transform .1s;
+    }
+
+    /* Shimmer sweep — draws the eye */
+    .speed-btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -80%;
+      width: 55%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.32), transparent);
+      animation: btn-shimmer 3.2s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes btn-shimmer {
+      0%, 55%, 100% { left: -80%; }
+      30%           { left: 130%; }
+    }
+
+    .speed-btn span { position: relative; z-index: 1; }
+    .speed-btn:active { transform: scale(.93) !important; animation: none !important; }
+
+    /* Idle: float up + glow pulse */
+    @keyframes btn-idle {
+      0%, 100% {
+        box-shadow: 0 0 16px rgba(255,68,204,.65), 0 6px 18px rgba(0,0,0,.5);
+        transform: translateY(0);
+      }
+      50% {
+        box-shadow: 0 0 42px rgba(255,68,204,1), 0 10px 24px rgba(0,0,0,.5);
+        transform: translateY(-5px);
+      }
+    }
+
+    /* s2 — faster float, brighter */
+    .speed-btn.s2 {
+      background: linear-gradient(135deg, #e0006e 0%, #7700cc 100%);
+      border-color: rgba(255,200,245,0.9);
+      animation: btn-s2 1s ease-in-out infinite;
+    }
+    @keyframes btn-s2 {
+      0%, 100% {
+        box-shadow: 0 0 25px rgba(255,68,204,.85), 0 6px 18px rgba(0,0,0,.5);
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        box-shadow: 0 0 55px rgba(255,68,204,1), 0 10px 24px rgba(0,0,0,.5);
+        transform: translateY(-5px) scale(1.04);
+      }
+    }
+
+    /* s3 — jitter + hot glow */
+    .speed-btn.s3 {
+      background: linear-gradient(135deg, #ff0055 0%, #8800ff 100%);
+      border-color: #fff;
+      animation: btn-s3 0.22s ease-in-out infinite;
+    }
+    @keyframes btn-s3 {
+      0%, 100% { transform: translateX(0)  scale(1);    box-shadow: 0 0 35px #ff44cc, 0 6px 18px rgba(0,0,0,.5); }
+      33%      { transform: translateX(-3px) scale(1.02); }
+      66%      { transform: translateX(3px)  scale(1.02); }
+    }
+
+    /* s4 TURBO — full chaos */
+    .speed-btn.s4 {
+      border-color: #fff;
+      animation: btn-turbo 0.28s linear infinite;
+    }
+    @keyframes btn-turbo {
+      0%   { background: linear-gradient(135deg,#ff0055,#8800ff); box-shadow: 0 0 35px #ff44cc, 0 0 70px #aa00ff; transform: scale(1); }
+      25%  { background: linear-gradient(135deg,#ff44cc,#0055ff); transform: scale(1.05); }
+      50%  { background: linear-gradient(135deg,#ff8800,#ff00aa); box-shadow: 0 0 55px #ff8800, 0 0 90px #ff44cc; transform: scale(1); }
+      75%  { background: linear-gradient(135deg,#aa00ff,#ff4400); transform: scale(1.05); }
+      100% { background: linear-gradient(135deg,#ff0055,#8800ff); box-shadow: 0 0 35px #ff44cc, 0 0 70px #aa00ff; }
+    }
+
+    /* Screen flash on click */
+    #flash {
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #flash.pop { animation: flash-pop 0.25s ease-out forwards; }
+    @keyframes flash-pop {
+      0%  { opacity: 0.35; }
+      100%{ opacity: 0; }
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 480px) {
+      .page { padding: 10px 14px 6px; gap: 7px; }
+
+      .topbar { gap: 10px; }
+
+      .buy-btn {
+        font-size: .75rem;
+        padding: 8px 12px;
+        letter-spacing: .08em;
+        white-space: nowrap;
+      }
+
+      .social-row { gap: 14px; }
+
+      .link-card img { width: 34px; height: 34px; padding: 5px; }
+
+      .speed-btn { font-size: .85rem; padding: 10px 18px; }
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      font-size: .6rem;
+      letter-spacing: .1em;
+      text-align: center;
+      color: rgba(255,255,255,.28);
+      text-transform: uppercase;
+      flex-shrink: 0;
+      padding-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+<div id="flash"></div>
+<div class="page">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="title-block">
+      <h1>Commotitty</h1>
+      <p class="tagline">The spiciest coin on the market</p>
+    </div>
+    <a class="buy-btn" href="#" target="_blank" rel="noopener">Buy $COMMOTITTY</a>
+  </div>
+
+  <!-- SOCIAL LINKS -->
+  <nav class="social-row">
+    <a class="link-card" href="https://t.me/commotitty_meme" target="_blank" rel="noopener">
+      <img src="https://cdn.simpleicons.org/telegram/26A5E4" alt="Telegram" />
+      <span>Telegram</span>
+    </a>
+    <a class="link-card" href="https://x.com/Commotitty" target="_blank" rel="noopener">
+      <img src="https://cdn.simpleicons.org/x/ffffff" alt="X" />
+      <span>Twitter</span>
+    </a>
+    <a class="link-card" href="" target="_blank" rel="noopener">
+      <img src="dexscreener.png" alt="Dexscreener" />
+      <span>Dexscreener</span>
+    </a>
+  </nav>
+
+  <!-- GIF -->
+  <div class="gif-wrap" id="gif-wrap">
+    <div class="speed-lines"></div>
+    <canvas id="gif-canvas"></canvas>
+    <div class="turbo-label">TURBO</div>
+  </div>
+
+  <!-- CA + Speed -->
+  <div class="bottom-row">
+    <div class="ca-box">
+      <span class="ca-label">CA</span>
+      <span class="ca-address" id="ca">ERERPvDDuiSYFsChPeETeUxdg6soPL4jb8YhXpXupump</span>
+      <button class="ca-copy" onclick="copyCA()">Copy</button>
+    </div>
+    <button class="speed-btn" id="speed-btn" onclick="cycleSpeed()">
+      <span id="speed-label">⚡ SPEED UP</span>
+    </button>
+  </div>
+
+  <footer>Not financial advice &nbsp;|&nbsp; For entertainment only</footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gifler@0.1.0/gifler.min.js"></script>
+<script>
+  var gifAnim = null;
+  var speedIdx = 0;
+  var levels = [
+    { mult: 1, label: '⚡ SPEED UP', cls: '' },
+    { mult: 2, label: '⚡ 2x',      cls: 's2' },
+    { mult: 4, label: '🔥 4x',      cls: 's3' },
+    { mult: 8, label: '💥 TURBO',   cls: 's4' }
+  ];
+
+  gifler('titty.gif').get(function(anim) {
+    gifAnim = anim;
+    anim._frames.forEach(function(f) { f._origDelay = f.delay; });
+    anim.animateInCanvas(document.getElementById('gif-canvas'));
+  });
+
+  function cycleSpeed() {
+    speedIdx = (speedIdx + 1) % levels.length;
+    var lv = levels[speedIdx];
+
+    // Apply speed to frames
+    if (gifAnim && gifAnim._frames) {
+      gifAnim._frames.forEach(function(f) {
+        f.delay = f._origDelay / lv.mult;
+      });
+    }
+
+    // Update classes on gif-wrap, button, body, page
+    var wrap  = document.getElementById('gif-wrap');
+    var btn   = document.getElementById('speed-btn');
+    var page  = document.querySelector('.page');
+    var label = document.getElementById('speed-label');
+
+    ['s2','s3','s4'].forEach(function(c) {
+      wrap.classList.remove(c);
+      btn.classList.remove(c);
+      page.classList.remove(c);
+      document.body.classList.remove(c);
+    });
+
+    if (lv.cls) {
+      wrap.classList.add(lv.cls);
+      btn.classList.add(lv.cls);
+      page.classList.add(lv.cls);
+      document.body.classList.add(lv.cls);
+    }
+
+    label.textContent = lv.label;
+
+    // Screen flash on every click
+    var flash = document.getElementById('flash');
+    flash.classList.remove('pop');
+    void flash.offsetWidth; // reflow to restart animation
+    flash.classList.add('pop');
+  }
+
+  function copyCA() {
+    var ca = document.getElementById('ca').textContent;
+    navigator.clipboard.writeText(ca).then(function() {
+      var btn = document.querySelector('.ca-copy');
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy'; }, 1800);
+    });
+  }
+</script>
+</body>
+</html>
